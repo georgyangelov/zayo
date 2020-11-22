@@ -1,0 +1,60 @@
+{
+  "name": "@zayo/core",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node bin/start.ts",
+    "watch": "nodemon --exec \"ts-node\" bin/start.ts",
+    "lint": "eslint '*/**/*.{js,ts}'",
+    "test": "ava",
+    "build": "tsc",
+    "prepublish": "tsc"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.157",
+    "@types/node": "^14.0.26",
+    "@types/uuid": "^8.0.0",
+    "cron-time-generator": "^1.0.7",
+    "dayjs": "^1.8.30",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.19",
+    "mqtt": "^4.1.0",
+    "node-cron": "^2.0.3",
+    "node-fetch": "^2.6.1",
+    "sunrise-sunset-js": "^2.1.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^4.1.0",
+    "uuid": "^8.2.0",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node-cron": "^2.0.3",
+    "@types/node-fetch": "^2.5.7",
+    "@types/sunrise-sunset-js": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
+    "ava": "^3.9.0",
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5"
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "test/*",
+      "docs/*"
+    ],
+    "delay": "100"
+  }
+}

@@ -1,0 +1,14 @@
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+node_modules/
+packages/*/build/
+
+/test/
+
+# We're using yarn.lock
+package-lock.json

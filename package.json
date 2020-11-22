@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "workspaces": ["cli", "core"],
+  "scripts": {
+    "publish-all": "yarn workspaces foreach yarn npm publish --tolerate-republish --access public",
+    "cli": "yarn workspace @zayo/cli",
+    "core": "yarn workspace @zayo/core",
+
+    "build": "yarn core build && yarn cli build",
+
+    "zayo": "node cli/build/index.js",
+    "test:generate": "yarn build && cd core && npm link && cd .. && yarn zayo new test"
+  }
+}
