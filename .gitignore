@@ -6,7 +6,7 @@
 .pnp.*
 
 node_modules/
-packages/*/build/
+*/build/
 
 /test/
 

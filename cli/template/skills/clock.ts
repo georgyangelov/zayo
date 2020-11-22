@@ -1,4 +1,4 @@
-import { Cron, cronTime, Skill } from '@zayo/core';
+import { Cron, cronTime, Skill } from '@zayojs/core';
 
 export default class Clock extends Skill {
   private cron = this.integration(Cron).actionsFor(this);

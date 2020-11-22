@@ -1,5 +1,5 @@
 {
-  "name": "@zayo/cli",
+  "name": "@zayojs/cli",
   "version": "1.0.0",
   "license": "MIT",
   "bin": {

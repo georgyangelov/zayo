@@ -1,4 +1,4 @@
-import { Zayo, Cron, JSONStorage } from '@zayo/core';
+import { Zayo, Cron, JSONStorage } from '@zayojs/core';
 import * as dotenv from 'dotenv';
 
 import Clock from './skills/clock';

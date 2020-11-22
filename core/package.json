@@ -1,5 +1,5 @@
 {
-  "name": "@zayo/core",
+  "name": "@zayojs/core",
   "version": "1.0.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -10,8 +10,9 @@
     "lint": "eslint '*/**/*.{js,ts}'",
     "test": "ava",
     "build": "tsc",
-    "prepublish": "tsc"
+    "prepublishOnly": "tsc"
   },
+  "files": ["build"],
   "dependencies": {
     "@types/lodash": "^4.14.157",
     "@types/node": "^14.0.26",
