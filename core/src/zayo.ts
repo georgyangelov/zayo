@@ -3,42 +3,7 @@ import { ContinuationLocal } from './lib/continuation-locals';
 import { Logger } from './logger';
 import { Skill } from './skill';
 import { Integration } from "./integration";
-
-export interface Event {
-  integration: string;
-  name: string;
-}
-
-export interface ErrorEvent {
-  integration: 'internal';
-  name: 'error';
-
-  originalEvent: Event;
-
-  skill: Skill;
-  error: Error;
-}
-
-export function isErrorEvent(event: Event): event is ErrorEvent {
-  return event.integration === 'internal' && event.name === 'error';
-}
-
-export enum ListenerAction {
-  Stop = 'stop',
-  Next = 'next'
-}
-
-export type HandleResult =
-  | void
-  | ListenerAction
-  | Promise<void | ListenerAction>;
-
-export interface EventListener {
-  priority: number;
-
-  canHandle(event: Event): boolean;
-  handle(event: Event): Promise<HandleResult>;
-}
+import { Eventing } from "./eventing";
 
 export type SkillConstructor<T> = new (zayo: Zayo) => T;
 export type Newable<T> = new (...args: any[]) => T;
@@ -57,6 +22,7 @@ export class Zayo {
   private started?: Promise<void>;
 
   public readonly interactionContext = new ContinuationLocal<Context>();
+  public readonly eventing = new Eventing(this, this.logger);
 
   constructor(integrations: IntegrationConstructor) {
     this.integrations = integrations(this);
@@ -77,6 +43,10 @@ export class Zayo {
           });
         });
     }
+  }
+
+  get _internal_skills(): Skill[] {
+    return this.skills;
   }
 
   get inInteraction(): boolean {
@@ -100,7 +70,7 @@ export class Zayo {
       return;
     }
 
-    this.logger.info('Hello zayo', { version: '2.0' });
+    this.logger.info('Hello Zayo', { version: '2.0' });
 
     // Doing this to prevent any skill registrations while this is going on
     // to affect it. Otherwise, this may cause some skills to be initialized twice.
@@ -117,14 +87,49 @@ export class Zayo {
     await this.started;
   }
 
-  interact<T>(skill: Skill, callback: () => T): T {
-    return this.interactionContext.set(
-      {
-        interactionId: uuidV4(),
-        skill
-      },
-      callback
-    );
+  async interact<T>(skill: Skill, callback: () => T | Promise<T>, info: Record<string, any> = {}): Promise<T> {
+    const parentContext = this.interactionContext.get();
+    const context = parentContext && parentContext.skill === skill ? parentContext : {
+      interactionId: parentContext?.interactionId ?? uuidV4(),
+      skill
+    };
+
+    try {
+      if (context === parentContext) {
+        return await callback();
+      }
+
+      return await this.interactionContext.set(
+        {
+          interactionId: parentContext?.interactionId ?? uuidV4(),
+          skill
+        },
+        callback
+      );
+    } catch (error) {
+      this.logger.error('Error during interaction', {
+        error,
+        context: {
+          skill: context.skill.name,
+          interactionId: context.interactionId
+        },
+        parentContext: parentContext && {
+          skill: parentContext.skill.name,
+          interactionId: parentContext.interactionId
+        },
+        info
+      });
+
+      throw error;
+    }
+  }
+
+  async interactHandlingErrors(skill: Skill, callback: () => unknown, info: Record<string, any> = {}): Promise<void> {
+    try {
+      await this.interact(skill, callback, info);
+    } catch (_error) {
+      // Relying on the handler in `interact` to log the error
+    }
   }
 
   integration<T extends Integration>(klass: Newable<T>): T {
@@ -141,70 +146,5 @@ export class Zayo {
     }
 
     return instances[0];
-  }
-
-  async handleEvent(event: Event): Promise<void> {
-    if (!isErrorEvent(event)) {
-      this.logger.debug('Handling event', { event });
-    }
-
-    const handlers = this.listenersForEvent(event);
-
-    for (const handler of handlers) {
-      try {
-        const result = await handler.listener.handle(event);
-
-        if (!result || result === ListenerAction.Stop) {
-          return;
-        } else if (result === ListenerAction.Next) {
-          continue;
-        } else {
-          this.logger.error('Unknown result returned by a handler', {
-            result
-          });
-        }
-      } catch (err) {
-        if (isErrorEvent(event)) {
-          this.logger.error('Error happened while handling another error', {
-            originalError: event.error.toString(),
-            error: err.toString()
-          });
-        }
-
-        const errorEvent: ErrorEvent = {
-          integration: 'internal',
-          name: 'error',
-
-          originalEvent: event,
-
-          skill: handler.skill,
-          error: err
-        };
-
-        return this.handleEvent(errorEvent);
-      }
-    }
-
-    if (isErrorEvent(event)) {
-      this.logger.error('Error handling event', {
-        event: event.originalEvent,
-        skill: event.skill.name,
-        error: {
-          name: event.error.name,
-          message: event.error.message,
-          stack: event.error.stack
-        }
-      });
-    } else {
-      this.logger.debug('No listeners can handle event', { event });
-    }
-  }
-
-  private listenersForEvent(event: Event) {
-    return this.skills
-      .flatMap(skill =>
-        skill.listenersFor(event).map(listener => ({ listener, skill }))
-      )
-      .sort((a, b) => b.listener.priority - a.listener.priority);
   }
 }

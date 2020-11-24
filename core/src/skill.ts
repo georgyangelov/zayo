@@ -1,5 +1,6 @@
+import { Event, EventListener } from "./eventing";
 import { Integration } from "./integration";
-import { Event, EventListener, Newable, Zayo } from "./zayo";
+import { Newable, Zayo } from "./zayo";
 
 export abstract class Skill {
   public readonly logger = this.zayo.logger.child(this.name);

@@ -1,8 +1,9 @@
 import { isPlainObject } from 'lodash';
 import { Client, connect, IClientPublishOptions } from 'mqtt';
+import { Event, HandleResult } from '../eventing';
 import { Integration } from '../integration';
 import { Skill } from '../skill';
-import { Event, HandleResult, Zayo } from '../zayo';
+import { Zayo } from '../zayo';
 
 export interface MqttConfig {
   brokerUrl: string;
@@ -40,7 +41,7 @@ export class MqttIntegration extends Integration {
           message = JSON.parse(message.toString());
         } catch {}
 
-        this.zayo.handleEvent(new MqttMessageEvent(topic, message));
+        this.zayo.eventing.handleEvent(new MqttMessageEvent(topic, message));
       });
     });
   }
@@ -68,9 +69,7 @@ export class MqttIntegration extends Integration {
             priority: 0,
 
             canHandle: event => this.canHandleEvent(event, topic),
-
-            handle: async (event: MqttMessageEvent) =>
-              this.zayo.interact(skill, () => handler(event))
+            handle: async (event: MqttMessageEvent) => handler(event)
           });
         }
       },

@@ -11,7 +11,7 @@ const zayo = new Zayo((zayo: Zayo) => ({
   //   brokerUrl: Config.getString('MQTT_BROKER')
   // }),
 
-  cron: new Cron(),
+  cron: new Cron(zayo),
 
   jsonStorage: new JSONStorage('.data/json-storage')
 }));
