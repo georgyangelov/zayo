@@ -1,11 +1,13 @@
 {
   "private": true,
-  "workspaces": ["cli", "core"],
+  "workspaces": ["cli", "core", "slack"],
   "scripts": {
     "publish:core": "yarn workspace @zayojs/core publish --access public",
     "publish:cli": "yarn workspace @zayojs/cli publish --access public",
+    "publish:slack": "yarn workspace @zayojs/slack publish --access public",
     "cli": "yarn workspace @zayojs/cli",
     "core": "yarn workspace @zayojs/core",
+    "slack": "yarn workspace @zayojs/slack",
 
     "build": "yarn core build && yarn cli build",
 

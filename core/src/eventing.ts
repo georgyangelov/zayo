@@ -31,11 +31,13 @@ export type HandleResult =
   | ListenerAction
   | Promise<void | ListenerAction>;
 
-export interface EventListener {
+export type ZayoEventHandler<T extends Event> = (event: T) => Promise<HandleResult>;
+
+export interface EventListener<T extends Event> {
   priority: number;
 
   canHandle(event: Event): boolean;
-  handle(event: Event): Promise<HandleResult>;
+  handle: ZayoEventHandler<T>;
 }
 
 export class Eventing {

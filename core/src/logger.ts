@@ -15,7 +15,7 @@ const globalLogger = createLogger({
 });
 
 export class Logger {
-  private winstonLogger: WinstonLogger;
+  public readonly winstonLogger: WinstonLogger;
 
   constructor(private zayo: Zayo, private context: string) {
     this.winstonLogger = globalLogger.child({});

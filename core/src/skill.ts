@@ -5,7 +5,7 @@ import { Newable, Zayo } from "./zayo";
 export abstract class Skill {
   public readonly logger = this.zayo.logger.child(this.name);
 
-  private listeners: EventListener[] = [];
+  private listeners: EventListener<Event>[] = [];
 
   constructor(private zayo: Zayo) {}
 
@@ -15,11 +15,11 @@ export abstract class Skill {
     return this.constructor.name;
   }
 
-  addListener(listener: EventListener) {
-    this.listeners.push(listener);
+  addListener<T extends Event>(listener: EventListener<T>) {
+    this.listeners.push(listener as EventListener<Event>);
   }
 
-  listenersFor(event: Event): EventListener[] {
+  listenersFor(event: Event): EventListener<Event>[] {
     return this.listeners.filter(listener => listener.canHandle(event));
   }
 

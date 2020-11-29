@@ -36,7 +36,7 @@ export class HTTPStatusCodeError extends FetchError {
 }
 
 export class HTTP extends Integration {
-  name = 'email' as const;
+  name = 'http' as const;
 
   constructor(private zayo: Zayo) {
     super();
