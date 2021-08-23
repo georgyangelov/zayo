@@ -25,8 +25,17 @@ export class Cron extends Integration {
         }, { ...options, scheduled: true });
       },
 
-      scheduleOnce: (cron: string, action: () => unknown, options?: Pick<ScheduleOptions, 'timezone'>) => {
-        logger.info('Scheduled cron action (once)', { cron, options });
+      scheduleOnce: (expressionOrDate: string | Date, action: () => unknown, options?: Pick<ScheduleOptions, 'timezone'>) => {
+        const cron = expressionOrDate instanceof Date ? this.dateToCronTime(expressionOrDate) : expressionOrDate;
+
+        if (expressionOrDate instanceof Date) {
+          if (expressionOrDate.getTime() < new Date().getTime()) {
+            logger.debug('Not scheduling action because it\'s in the past', { expressionOrDate, cron, options })
+            return;
+          }
+        }
+
+        logger.info('Scheduled cron action (once)', { expressionOrDate, cron, options });
 
         const task = schedule(cron, async () => {
           task.stop();
@@ -37,5 +46,9 @@ export class Cron extends Integration {
         return task;
       }
     };
+  }
+
+  private dateToCronTime(date: Date) {
+    return `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} *`;
   }
 }

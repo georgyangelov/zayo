@@ -8,7 +8,7 @@ import { URL } from 'url';
 
 export { RequestInfo, RequestInit, Response };
 
-interface RequestConfig {
+export interface RequestConfig {
   // zayo additional props
   url: string;
   query?: Record<string, string | number | undefined>;

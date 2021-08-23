@@ -7,7 +7,7 @@ export abstract class Skill {
 
   private listeners: EventListener<Event>[] = [];
 
-  constructor(private zayo: Zayo) {}
+  constructor(public readonly zayo: Zayo) {}
 
   abstract initialize(): void | Promise<void>;
 
@@ -17,10 +17,14 @@ export abstract class Skill {
 
   addListener<T extends Event>(listener: EventListener<T>) {
     this.listeners.push(listener as EventListener<Event>);
+
+    return () => {
+      this.listeners = this.listeners.filter(_ => _ !== listener);
+    };
   }
 
-  listenersFor(event: Event): EventListener<Event>[] {
-    return this.listeners.filter(listener => listener.canHandle(event));
+  public get eventListeners() {
+    return this.listeners;
   }
 
   integration<T extends Integration>(klass: Newable<T>): T {

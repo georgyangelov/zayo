@@ -11,7 +11,7 @@ type IntegrationConstructor = (zayo: Zayo) => Record<string, Integration>;
 
 export interface Context {
   interactionId: string;
-  skill: Skill;
+  skill?: Skill;
 }
 
 export class Zayo {
@@ -87,6 +87,18 @@ export class Zayo {
     await this.started;
   }
 
+  withInteractionId<T>(callback: () => T): T {
+    const parentContext = this.interactionContext.get();
+
+    if (parentContext) {
+      return callback();
+    }
+
+    return this.interactionContext.set({
+      interactionId: uuidV4()
+    }, callback);
+  }
+
   async interact<T>(skill: Skill, callback: () => T | Promise<T>, info: Record<string, any> = {}): Promise<T> {
     const parentContext = this.interactionContext.get();
     const context = parentContext && parentContext.skill === skill ? parentContext : {
@@ -99,22 +111,16 @@ export class Zayo {
         return await callback();
       }
 
-      return await this.interactionContext.set(
-        {
-          interactionId: parentContext?.interactionId ?? uuidV4(),
-          skill
-        },
-        callback
-      );
+      return await this.interactionContext.set(context, callback);
     } catch (error) {
       this.logger.error('Error during interaction', {
         error,
         context: {
-          skill: context.skill.name,
+          skill: context.skill?.name,
           interactionId: context.interactionId
         },
         parentContext: parentContext && {
-          skill: parentContext.skill.name,
+          skill: parentContext.skill?.name,
           interactionId: parentContext.interactionId
         },
         info

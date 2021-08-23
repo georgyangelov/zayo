@@ -2,9 +2,9 @@
   "private": true,
   "workspaces": ["cli", "core", "slack"],
   "scripts": {
-    "publish:core": "yarn workspace @zayojs/core publish --access public",
-    "publish:cli": "yarn workspace @zayojs/cli publish --access public",
-    "publish:slack": "yarn workspace @zayojs/slack publish --access public",
+    "publish:core": "yarn workspace @zayojs/core publish --access public --no-git-tag-version",
+    "publish:cli": "yarn workspace @zayojs/cli publish --access public --no-git-tag-version",
+    "publish:slack": "yarn workspace @zayojs/slack publish --access public --no-git-tag-version",
     "cli": "yarn workspace @zayojs/cli",
     "core": "yarn workspace @zayojs/core",
     "slack": "yarn workspace @zayojs/slack",

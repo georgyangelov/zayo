@@ -7,7 +7,7 @@ import {
 import { Zayo } from '.';
 
 const globalLogger = createLogger({
-  level: 'info',
+  level: 'debug',
   format: format.simple(), //format.json(),
 
   // TODO: Use env variable
@@ -35,10 +35,27 @@ export class Logger {
     });
   }
 
+  warn(message: string, info: Record<string, any> = {}) {
+    const errorObject = info.error;
+
+    if (errorObject && errorObject.name && errorObject.message && errorObject.stack) {
+      info.error = {
+        name: errorObject.name,
+        message: errorObject.message,
+        stack: errorObject.stack
+      };
+    }
+
+    this.winstonLogger.warn(message, {
+      ...info,
+      meta: this.meta()
+    });
+  }
+
   error(message: string, info: Record<string, any> = {}) {
     const errorObject = info.error;
 
-    if (errorObject.name && errorObject.message && errorObject.stack) {
+    if (errorObject && errorObject.name && errorObject.message && errorObject.stack) {
       info.error = {
         name: errorObject.name,
         message: errorObject.message,

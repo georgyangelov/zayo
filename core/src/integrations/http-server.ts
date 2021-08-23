@@ -4,7 +4,6 @@ import { Zayo } from '../zayo';
 import express, { Application, Router } from 'express';
 import { Server as NodeHttpServer } from 'http';
 import {
-  requestWhitelist,
   logger as expressWinstonLogger,
   errorLogger as expressWinstonErrorLogger
 } from 'express-winston';
@@ -32,7 +31,7 @@ export class HTTPServer extends Integration {
     const logger = this.zayo.logger.child('http-server-express')
     app.use(expressWinstonLogger({
       winstonInstance: logger.winstonLogger,
-      level: 'debug',
+      level: 'silly',
 
       // TODO: This should be configurable
       requestWhitelist: ['url', 'headers', 'method', 'body'],
